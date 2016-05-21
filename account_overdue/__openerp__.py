@@ -20,4 +20,19 @@
 #
 ##############################################################################
 
-from . import models
+{
+    'name': 'Overdue Payments customisation',
+    'version': '8.0.1.0.1',
+    'license': 'AGPL-3',
+    'author': 'Noviat',
+    'category': 'Accounting & Finance',
+    'depends': ['account'],
+    'data': [
+        'report/print_overdue_report.xml',
+        'views/res_partner.xml',
+        'views/report_overdue.xml',
+        'views/report_overdue_style.xml',
+        'views/report_overdue_layout.xml',
+        'wizard/print_overdue_wizard.xml',
+    ],
+}

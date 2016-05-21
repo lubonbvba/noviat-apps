@@ -20,4 +20,4 @@
 #
 ##############################################################################
 
-from . import models
+from . import print_overdue_wizard
