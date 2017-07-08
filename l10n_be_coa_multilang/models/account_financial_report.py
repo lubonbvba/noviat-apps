@@ -1,27 +1,9 @@
 # -*- coding: utf-8 -*-
-##############################################################################
-#
-#    Odoo, Open Source Management Solution
-#
-#    Copyright (c) 2009-2016 Noviat nv/sa (www.noviat.com).
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as
-#    published by the Free Software Foundation, either version 3 of the
-#    License, or (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program. If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
+# Copyright 2009-2016 Noviat
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
+from openerp import fields, models, _
+from openerp.exceptions import Warning as UserError
 
-from openerp import models, fields, _
-from openerp.exceptions import except_orm
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -96,7 +78,8 @@ class account_account(models.Model):
             company_obj = self.pool.get('res.company')
             company_ids = company_obj.search(cr, uid, [])
             for company_id in company_ids:
-                company = company_obj.browse(cr, uid, company_id)
+                company = company_obj.browse(
+                    cr, uid, company_id, context=context)
                 if company.country_id.code in self._be_scheme_countries:
                     be_scheme_company_ids.append(company_id)
             args += [('company_id', 'in', be_scheme_company_ids)]
@@ -113,7 +96,7 @@ class account_account(models.Model):
             ['account_group', 'report_id'],
             context=context)
         acc_code = vals['code']
-        account = self.browse(cr, uid, acc_id)
+        account = self.browse(cr, uid, acc_id, context=context)
         if account.type not in ['view', 'consolidation'] and \
                 account.company_id.country_id.code in \
                 self._be_scheme_countries:
@@ -123,7 +106,7 @@ class account_account(models.Model):
                 scheme_table)
             if be_report_entries:
                 if len(be_report_entries) > 1:
-                    raise except_orm(
+                    raise UserError(
                         _("Configuration Error !"),
                         _("Configuration Error in the "
                           "Belgian Legal Financial Report Scheme."))
@@ -149,7 +132,7 @@ class account_account(models.Model):
             acc_code = vals.get('code')
             acc_type = vals.get('type')
             centralized = vals.get('centralized')
-            for account in self.browse(cr, uid, ids):
+            for account in self.browse(cr, uid, ids, context=context):
                 updated = False
                 if account.company_id.country_id.code in \
                         self._be_scheme_countries:
@@ -161,7 +144,7 @@ class account_account(models.Model):
                             0:len(x['account_group'])] == x['account_group'],
                         scheme_table)
                     if len(be_report_entries) > 1:
-                        raise except_orm(
+                        raise UserError(
                             _("Configuration Error !"),
                             _("Configuration Error in the "
                               "Belgian Legal Financial Report Scheme."))

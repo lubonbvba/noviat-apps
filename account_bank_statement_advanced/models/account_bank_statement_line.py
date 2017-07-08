@@ -1,24 +1,6 @@
 # -*- coding: utf-8 -*-
-##############################################################################
-#
-#    Odoo, Open Source Management Solution
-#
-#    Copyright (c) 2009-2016 Noviat nv/sa (www.noviat.com).
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as
-#    published by the Free Software Foundation, either version 3 of the
-#    License, or (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program. If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
+# Copyright 2009-2017 Noviat.
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import pickle
 
@@ -32,6 +14,9 @@ class AccountBankStatementLine(models.Model):
     # new fields
     state = fields.Selection(
         related='statement_id.state', string='Statement State',
+        readonly=True, store=True)
+    statement_date = fields.Date(
+        related='statement_id.date', string='Statement Date',
         readonly=True, store=True)
     val_date = fields.Date(
         string='Value Date',  # nl: valuta datum
@@ -48,9 +33,6 @@ class AccountBankStatementLine(models.Model):
     globalisation_amount = fields.Float(
         related='globalisation_id.amount',
         string='Glob. Amount', readonly=True)
-    counterparty_name = fields.Char(
-        string='Counterparty Name',
-        states={'confirm': [('readonly', True)]})
     counterparty_bic = fields.Char(
         string='Counterparty BIC', size=11,
         states={'confirm': [('readonly', True)]})
@@ -82,7 +64,7 @@ class AccountBankStatementLine(models.Model):
     reconcile_get = fields.Char(
         string='Reconciled', compute='_compute_reconcile_get', readonly=True)
     move_get = fields.Char(
-        string='Move', compute='_compute_move_get', readonly=True)
+        string='Move', compute='_compute_move_get', readonly=True, store=True)
     move_state = fields.Selection(
         string='Move State', related='journal_entry_id.state', readonly=True)
 

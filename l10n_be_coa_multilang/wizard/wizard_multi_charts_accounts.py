@@ -1,27 +1,10 @@
 # -*- coding: utf-8 -*-
-##############################################################################
-#
-#    Odoo, Open Source Management Solution
-#
-#    Copyright (c) 2009-2016 Noviat nv/sa (www.noviat.com).
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as
-#    published by the Free Software Foundation, either version 3 of the
-#    License, or (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program. If not, see <http://www.gnu.org/licenses/>.
-#
-##############################################################################
+# Copyright 2009-2017 Noviat
+# License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
-from openerp import models, fields, api, _
+from openerp import api, fields, models, _
 from openerp.exceptions import Warning as UserError
+
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -162,7 +145,6 @@ class wizard_multi_charts_accounts(models.TransientModel):
         context = self._context.copy()
         cr = self._cr
         uid = self._uid
-        env_no_ctx = self.with_context({}).env
         if context.get('next_action') == 'account.action_wizard_multi_chart':
             del context['next_action']
             del context['company_id']
@@ -181,12 +163,10 @@ class wizard_multi_charts_accounts(models.TransientModel):
                       "in the addons path. "
                       "\nPlease download this module from 'apps.odoo.com'.")
                     )
-            else:
-                to_install = to_install[0]
             if to_install.state != 'installed':
-                self.pool['ir.module.module'].button_immediate_install(
-                    cr, uid, [to_install.id],
-                    context=context)
+                to_install.button_immediate_install()
+
+        env_no_ctx = api.Environment(cr, uid, {})
 
         # Update company country, this is required for auto-configuration
         # of the legal financial reportscheme.
@@ -385,8 +365,9 @@ class wizard_multi_charts_accounts(models.TransientModel):
         note = upd_wiz._update_be_reportscheme()
         if note:
             wiz = upd_wiz.create({'note': note})
-            view = self.env.ref(
-                'l10n_be_coa_multilang.update_be_reportscheme_result_view')
+            module = __name__.split('addons.')[1].split('.')[0]
+            result_view = 'l10n_be_update_be_reportscheme_view_form_result'
+            view = self.env.ref('%s.%s' % (module, result_view))
             return {
                 'name': _('Results'),
                 'res_id': wiz.id,
